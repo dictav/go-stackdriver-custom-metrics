@@ -1,0 +1,8 @@
+{
+  "description": "autoscaling",
+  "displayName": "autoscaling",
+  "metricKind": "GAUGE",
+  "name": "autoscaling",
+  "unit": "items",
+  "valueType": "INT64"
+}
