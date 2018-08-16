@@ -22,9 +22,9 @@ type Logger interface {
 
 // MetricReporter struct
 type MetricReporter struct {
-	projectID  string
+	project    string
 	zone       string
-	metricType string
+	metric     string
 	instance   string
 	monitoring *monitoring.Service
 	value      chan int64
@@ -34,7 +34,7 @@ type MetricReporter struct {
 }
 
 // NewMetricReporter creates a new MetricReporter
-func NewMetricReporter(ctx context.Context, projectID, zone, metricType, instance string) (*MetricReporter, error) {
+func NewMetricReporter(ctx context.Context, project, zone, metric, instance string) (*MetricReporter, error) {
 	s, err := createService(ctx)
 	if err != nil {
 		return nil, err
@@ -45,9 +45,9 @@ func NewMetricReporter(ctx context.Context, projectID, zone, metricType, instanc
 	v := make(chan int64, 1)
 	v <- 0
 	m := &MetricReporter{
-		projectID:  projectID,
+		project:    project,
 		zone:       zone,
-		metricType: metricType,
+		metric:     metric,
 		instance:   instance,
 		monitoring: s,
 		value:      v,
@@ -130,23 +130,23 @@ func (m *MetricReporter) send() error {
 	println("send", v)
 	timeseries := monitoring.TimeSeries{
 		Metric: &monitoring.Metric{
-			Type: m.metricType,
+			Type: m.metric,
 			Labels: map[string]string{
-				"environment": "STAGING",
+				"count_name": "demo_count",
 			},
 		},
 		Resource: &monitoring.MonitoredResource{
 			Labels: map[string]string{
 				"instance_id": m.instance,
 				"zone":        m.zone,
+				"project_id":  m.project,
 			},
 			Type: "gce_instance",
 		},
 		Points: []*monitoring.Point{
 			{
 				Interval: &monitoring.TimeInterval{
-					StartTime: now,
-					EndTime:   now,
+					EndTime: now,
 				},
 				Value: &monitoring.TypedValue{
 					Int64Value: &v,
@@ -159,7 +159,7 @@ func (m *MetricReporter) send() error {
 		TimeSeries: []*monitoring.TimeSeries{&timeseries},
 	}
 
-	pid := projectResource(m.projectID)
+	pid := projectResource(m.project)
 	_, err := m.monitoring.Projects.TimeSeries.Create(pid, &req).Do()
 	return err
 }

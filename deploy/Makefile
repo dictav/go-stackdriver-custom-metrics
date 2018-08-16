@@ -1,5 +1,5 @@
 BASE_NAME=autoscale-test
-DOCKER_IMAGE=$(BASE_NAME):0.0.1
+DOCKER_IMAGE=$(BASE_NAME):0.0.2
 METRIC=custom.googleapis.com/autoscaling/count
 
 GOOGLE_APPLICATION_CREDENTIALS=
@@ -29,6 +29,7 @@ autoscale_test:
 template:
 	gcloud --project=dictav-net beta compute instance-templates \
 		create-with-container $$(echo $(DOCKER_IMAGE) | tr :. -) \
+		--preemptible \
 		--container-image=gcr.io/$(PROJECT)/$(DOCKER_IMAGE)
 
 instance-group: instance-group-create instance-group-autoscale
@@ -47,7 +48,7 @@ instance-group-autoscale:
 		set-autoscaling $(BASE_NAME) \
 		--zone=$(ZONE) \
 		--cool-down-period=60 \
-		--max-num-replicas=10 \
+		--max-num-replicas=5 \
 		--min-num-replicas=1 \
 		--custom-metric-utilization "metric=$(METRIC),utilization-target-type=GAUGE,utilization-target=5"
 

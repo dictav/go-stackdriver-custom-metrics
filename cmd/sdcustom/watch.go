@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"log"
 	"os"
@@ -16,9 +17,10 @@ import (
 
 type watchCmd struct {
 	project string
-	zone    string
-	group   string
 	metric  string
+	debug   bool
+
+	enc *json.Encoder
 }
 
 func (*watchCmd) Name() string     { return "watch" }
@@ -32,6 +34,7 @@ func (*watchCmd) Usage() string {
 func (cmd *watchCmd) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&cmd.project, "project", "", "GCP Project ID")
 	f.StringVar(&cmd.metric, "metric", "", "Custom Metric name")
+	f.BoolVar(&cmd.debug, "debug", false, "Enable Debug Mode")
 }
 
 func (cmd *watchCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
@@ -39,7 +42,12 @@ func (cmd *watchCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	timer := time.NewTicker(5 * time.Second)
+	if cmd.debug {
+		cmd.enc = json.NewEncoder(os.Stderr)
+		cmd.enc.SetIndent("", "  ")
+	}
 
+	println("start watching...")
 Loop:
 	for {
 		select {
@@ -50,7 +58,7 @@ Loop:
 				continue
 			}
 
-			logMetric(v)
+			cmd.logMetric(v)
 		case <-c:
 			break Loop
 		}
@@ -59,7 +67,7 @@ Loop:
 	return subcommands.ExitSuccess
 }
 
-func logMetric(res *monitoring.ListTimeSeriesResponse) {
+func (cmd *watchCmd) logMetric(res *monitoring.ListTimeSeriesResponse) {
 	if len(res.TimeSeries) == 0 {
 		return
 	}
@@ -84,4 +92,7 @@ func logMetric(res *monitoring.ListTimeSeriesResponse) {
 	}
 
 	log.Printf("%s: %v, labels=%s", instance, v, ts.Resource.Labels)
+	if cmd.enc != nil {
+		cmd.enc.Encode(&res)
+	}
 }

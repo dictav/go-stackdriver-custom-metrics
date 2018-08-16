@@ -10,12 +10,12 @@ import (
 )
 
 var (
-	projectID = flag.String("project", "", "GCP Project ID")
-	zone      = flag.String("zone", "asia-northeast1-a", "GCP Zone")
-	metric    = flag.String("metric", "custom.googleapis.com/autoscaling/count", "Custom Metric Name")
+	project = flag.String("project", "", "GCP Project ID")
+	zone    = flag.String("zone", "asia-northeast1-a", "GCP Zone")
+	metric  = flag.String("metric", "custom.googleapis.com_autoscaling_count", "Custom Metric Name")
 
 	interval = flag.Duration("interval", 5*time.Second, "Count up interval")
-	deadline = flag.Duration("deadline", 30*time.Minute, "Deadline")
+	deadline = flag.Duration("deadline", 10*time.Minute, "Deadline")
 )
 
 func main() {
@@ -32,7 +32,7 @@ func main() {
 	}
 	instance := args[0]
 
-	m, err := sdcustom.NewMetricReporter(ctx, *projectID, *zone, *metric, instance)
+	m, err := sdcustom.NewMetricReporter(ctx, *project, *zone, *metric, instance)
 	if err != nil {
 		panic(err)
 	}

@@ -20,6 +20,7 @@ func main() {
 	subcommands.Register(subcommands.FlagsCommand(), "")
 	subcommands.Register(subcommands.CommandsCommand(), "")
 	subcommands.Register(&applyCmd{}, "")
+	subcommands.Register(&deleteCmd{}, "")
 	subcommands.Register(&listCmd{}, "")
 	subcommands.Register(&templateCmd{}, "")
 	subcommands.Register(&watchCmd{}, "")
