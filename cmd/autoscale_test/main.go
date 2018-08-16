@@ -12,7 +12,7 @@ import (
 var (
 	project = flag.String("project", "", "GCP Project ID")
 	zone    = flag.String("zone", "asia-northeast1-a", "GCP Zone")
-	metric  = flag.String("metric", "custom.googleapis.com_autoscaling_count", "Custom Metric Name")
+	metric  = flag.String("metric", "custom.googleapis.com/autoscaling/count", "Custom Metric Name")
 
 	interval = flag.Duration("interval", 5*time.Second, "Count up interval")
 	deadline = flag.Duration("deadline", 10*time.Minute, "Deadline")
