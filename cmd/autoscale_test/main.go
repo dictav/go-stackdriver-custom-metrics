@@ -14,13 +14,12 @@ import (
 )
 
 var (
-	project = flag.String("project", "", "GCP Project ID")
-	zone    = flag.String("zone", "asia-northeast1-a", "GCP Zone")
-	group   = flag.String("group", "autoscale-test", "GCP Autoscaling Group")
-	metric  = flag.String("metric", "custom.googleapis.com/autoscaling/count", "Custom Metric Name")
+	project  = flag.String("project", "", "GCP Project ID")
+	zone     = flag.String("zone", "asia-northeast1-a", "GCP Zone")
+	group    = flag.String("group", "autoscale-test", "GCP Autoscaling Group")
+	metric   = flag.String("metric", "custom.googleapis.com/autoscaling/count", "Custom Metric Name")
+	refValue = flag.Int64("value", 80, "Reference value")
 )
-
-const baseValue = 10
 
 func main() {
 
@@ -59,7 +58,7 @@ LOOP:
 		select {
 		case <-i.C:
 			n := numberOfInstances(cs, *project, *zone, *group)
-			m.Set(int64(baseValue / n))
+			m.Set(*refValue / int64(n))
 		case <-sig:
 			break LOOP
 		}

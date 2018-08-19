@@ -1,11 +1,13 @@
 BASE_NAME=autoscale-test
-DOCKER_IMAGE=$(BASE_NAME):0.0.9
+DOCKER_IMAGE=$(BASE_NAME):0.0.10
 METRIC=custom.googleapis.com/autoscaling/count
 
 GOOGLE_APPLICATION_CREDENTIALS=
 PROJECT=
 ZONE=asia-northeast1-a
 MACHINE=f1-micro
+LOGCMD=gcloud --project=$(PROJECT) beta logging read 'resource.type="global" AND "autoscale-test"' --format=json --freshness=60s | jq -r '.[] | .receiveTimestamp + " " + .jsonPayload.data'
+AUTOSCALE_UTILIZATION_TARGET=4
 
 all: docker-build push template instance-group
 
@@ -53,9 +55,12 @@ instance-group-autoscale:
 		--cool-down-period=60 \
 		--max-num-replicas=5 \
 		--min-num-replicas=1 \
-		--custom-metric-utilization "metric=$(METRIC),utilization-target-type=GAUGE,utilization-target=5"
+		--custom-metric-utilization "metric=$(METRIC),utilization-target-type=GAUGE,utilization-target=$(AUTOSCALE_UTILIZATION_TARGET)"
 
 instance-group-delete:
 	gcloud beta compute --project=$(PROJECT) instance-groups managed \
 		delete $(BASE_NAME) \
 		--zone=$(ZONE)
+
+logs:
+	while :; do $(LOGCMD); sleep 60; done
