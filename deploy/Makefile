@@ -1,5 +1,5 @@
 BASE_NAME=autoscale-test
-DOCKER_IMAGE=$(BASE_NAME):0.0.7
+DOCKER_IMAGE=$(BASE_NAME):0.0.9
 METRIC=custom.googleapis.com/autoscaling/count
 
 GOOGLE_APPLICATION_CREDENTIALS=
@@ -32,6 +32,7 @@ template:
 		create-with-container $$(echo $(DOCKER_IMAGE) | tr :. -) \
 		--preemptible \
 		--machine-type=$(MACHINE) \
+		--scopes=https://www.googleapis.com/auth/cloud-platform \
 		--container-image=gcr.io/$(PROJECT)/$(DOCKER_IMAGE)
 
 instance-group: instance-group-create instance-group-autoscale
