@@ -13,9 +13,6 @@ var (
 	project = flag.String("project", "", "GCP Project ID")
 	zone    = flag.String("zone", "asia-northeast1-a", "GCP Zone")
 	metric  = flag.String("metric", "custom.googleapis.com/autoscaling/count", "Custom Metric Name")
-
-	interval = flag.Duration("interval", 5*time.Second, "Count up interval")
-	deadline = flag.Duration("deadline", 10*time.Minute, "Deadline")
 )
 
 func main() {
@@ -40,14 +37,17 @@ func main() {
 	m.Start()
 	defer m.Stop()
 
-	t := time.NewTicker(*interval)
-	dl := time.After(*deadline)
+	t1 := time.After(5 * time.Minute)
+	t2 := time.After(10 * time.Minute)
+	dl := time.After(20 * time.Minute)
 
 LOOP:
 	for {
 		select {
-		case <-t.C:
-			m.Add(1)
+		case <-t1:
+			m.Add(8)
+		case <-t2:
+			m.Add(-8)
 		case <-dl:
 			println("bye")
 			break LOOP

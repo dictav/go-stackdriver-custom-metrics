@@ -1,13 +1,14 @@
 BASE_NAME=autoscale-test
-DOCKER_IMAGE=$(BASE_NAME):0.0.2
+DOCKER_IMAGE=$(BASE_NAME):0.0.7
 METRIC=custom.googleapis.com/autoscaling/count
 
 GOOGLE_APPLICATION_CREDENTIALS=
 PROJECT=
 ZONE=asia-northeast1-a
+MACHINE=f1-micro
 
-template_name:
-	echo $(TEMPLATE_NAME)
+all: docker-build push template instance-group
+
 push:
 	docker tag $(DOCKER_IMAGE) gcr.io/$(PROJECT)/$(DOCKER_IMAGE)
 	docker push gcr.io/$(PROJECT)/$(DOCKER_IMAGE)
@@ -30,6 +31,7 @@ template:
 	gcloud --project=dictav-net beta compute instance-templates \
 		create-with-container $$(echo $(DOCKER_IMAGE) | tr :. -) \
 		--preemptible \
+		--machine-type=$(MACHINE) \
 		--container-image=gcr.io/$(PROJECT)/$(DOCKER_IMAGE)
 
 instance-group: instance-group-create instance-group-autoscale
@@ -52,3 +54,7 @@ instance-group-autoscale:
 		--min-num-replicas=1 \
 		--custom-metric-utilization "metric=$(METRIC),utilization-target-type=GAUGE,utilization-target=5"
 
+instance-group-delete:
+	gcloud beta compute --project=$(PROJECT) instance-groups managed \
+		delete $(BASE_NAME) \
+		--zone=$(ZONE)
