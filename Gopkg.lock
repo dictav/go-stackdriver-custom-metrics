@@ -52,16 +52,17 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:2f52d2bb208b1275524fc741f150067909ad9c057290a1e96ceeef46e02dc169"
+  digest = "1:7708079eb62d0e8294b49db354abde7879788b193e643a1cd1207b20147c81ca"
   name = "google.golang.org/api"
   packages = [
+    "compute/v1",
     "gensupport",
     "googleapi",
     "googleapi/internal/uritemplates",
     "monitoring/v3",
   ]
   pruneopts = "UT"
-  revision = "0e8d13b5c025da6a7cf249bb854e5869921dd459"
+  revision = "e21acd801f91da814261b938941d193bb036441a"
 
 [[projects]]
   digest = "1:c8907869850adaa8bd7631887948d0684f3787d0912f1c01ab72581a6c34432e"
@@ -88,6 +89,7 @@
   input-imports = [
     "github.com/google/subcommands",
     "golang.org/x/oauth2/google",
+    "google.golang.org/api/compute/v1",
     "google.golang.org/api/monitoring/v3",
   ]
   solver-name = "gps-cdcl"

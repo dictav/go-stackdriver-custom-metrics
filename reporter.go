@@ -76,6 +76,16 @@ func (m *MetricReporter) Done(n int64) {
 	m.value <- v - n
 }
 
+// Set metric value
+func (m *MetricReporter) Set(n int64) {
+	if m == nil {
+		return
+	}
+
+	<-m.value
+	m.value <- n
+}
+
 // SetInterval for sending metric
 func (m *MetricReporter) SetInterval(t time.Duration) {
 	if t < minInterval {
