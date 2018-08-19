@@ -1,5 +1,5 @@
 BASE_NAME=autoscale-test
-DOCKER_IMAGE=$(BASE_NAME):0.0.10
+DOCKER_IMAGE=$(BASE_NAME):0.0.11
 METRIC=custom.googleapis.com/autoscaling/count
 
 GOOGLE_APPLICATION_CREDENTIALS=
@@ -7,7 +7,7 @@ PROJECT=
 ZONE=asia-northeast1-a
 MACHINE=f1-micro
 LOGCMD=gcloud --project=$(PROJECT) beta logging read 'resource.type="global" AND "autoscale-test"' --format=json --freshness=60s | jq -r '.[] | .receiveTimestamp + " " + .jsonPayload.data'
-AUTOSCALE_UTILIZATION_TARGET=4
+AUTOSCALE_UTILIZATION_TARGET=19
 
 all: docker-build push template instance-group
 

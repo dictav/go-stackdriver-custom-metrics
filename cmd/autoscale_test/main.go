@@ -19,6 +19,7 @@ var (
 	group    = flag.String("group", "autoscale-test", "GCP Autoscaling Group")
 	metric   = flag.String("metric", "custom.googleapis.com/autoscaling/count", "Custom Metric Name")
 	refValue = flag.Int64("value", 80, "Reference value")
+	maxIns   = flag.Int("max-instances", 5, "Max instances")
 )
 
 func main() {
@@ -58,7 +59,11 @@ LOOP:
 		select {
 		case <-i.C:
 			n := numberOfInstances(cs, *project, *zone, *group)
-			m.Set(*refValue / int64(n))
+			if n >= *maxIns {
+				m.Set(0)
+			} else {
+				m.Set(*refValue / int64(n))
+			}
 		case <-sig:
 			break LOOP
 		}
