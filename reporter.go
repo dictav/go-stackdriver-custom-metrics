@@ -41,7 +41,7 @@ func NewMetricReporter(ctx context.Context, project, zone, metric, instance stri
 	m := &MetricReporter{
 		project:    project,
 		zone:       zone,
-		metric:     metric,
+		metric:     customMetricPrefix + metric,
 		instance:   instance,
 		monitoring: s,
 		value:      v,

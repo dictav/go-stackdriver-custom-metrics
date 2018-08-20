@@ -18,7 +18,7 @@ var (
 	project  = flag.String("project", "", "GCP Project ID")
 	zone     = flag.String("zone", "asia-northeast1-a", "GCP Zone")
 	group    = flag.String("group", "autoscale-test", "GCP Autoscaling Group")
-	metric   = flag.String("metric", "custom.googleapis.com/autoscaling/count", "Custom Metric Name")
+	metric   = flag.String("metric", "autoscaling/count", "Custom Metric Name")
 	refValue = flag.Int64("value", 80, "Reference value")
 	maxIns   = flag.Int("max-instances", 5, "Max instances")
 )

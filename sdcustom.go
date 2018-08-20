@@ -9,6 +9,8 @@ import (
 	"google.golang.org/api/monitoring/v3"
 )
 
+const customMetricPrefix = "custom.googleapis.com/"
+
 // Create new custom metric
 func Create(project string, md *monitoring.MetricDescriptor) error {
 	ctx := context.Background()
@@ -31,7 +33,7 @@ func List(project, group string) (*monitoring.ListMetricDescriptorsResponse, err
 		return nil, err
 	}
 
-	mt := "custom.googleapis.com/" + group
+	mt := customMetricPrefix + group
 	filter := fmt.Sprintf(`metric.type = starts_with("%s")`, mt)
 
 	pid := projectResource(project)
@@ -47,7 +49,7 @@ func Get(project, metric string) (*monitoring.ListTimeSeriesResponse, error) {
 	}
 
 	pid := projectResource(project)
-	cond := fmt.Sprintf("metric.type=\"custom.googleapis.com/%s\"", metric)
+	cond := fmt.Sprintf(`metric.type="%s"`, customMetricPrefix+metric)
 	st := time.Now().UTC().Add(time.Minute * -5).Format(time.RFC3339Nano)
 	end := time.Now().UTC().Format(time.RFC3339Nano)
 
