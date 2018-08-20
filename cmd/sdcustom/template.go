@@ -38,7 +38,7 @@ func (p *templateCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface
 				},
 			},
 		*/
-		MetricKind: "GUAGE/DELTA/CUMULATIVE",
+		MetricKind: "GAUGE/DELTA/CUMULATIVE",
 		Name:       "The resource name of the metric descriptor",
 		Unit:       "items",
 		ValueType:  "INT64/DOUBLE/STRING/MONEY",
