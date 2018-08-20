@@ -1,5 +1,5 @@
 BASE_NAME=autoscale-test
-DOCKER_IMAGE=$(BASE_NAME):0.0.11
+DOCKER_IMAGE=$(BASE_NAME):0.0.12
 METRIC=custom.googleapis.com/autoscaling/count
 
 GOOGLE_APPLICATION_CREDENTIALS=

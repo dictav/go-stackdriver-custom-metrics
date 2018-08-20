@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"math/rand"
 	"os"
 	"os/signal"
 	"time"
@@ -60,7 +61,7 @@ LOOP:
 		case <-i.C:
 			n := numberOfInstances(cs, *project, *zone, *group)
 			if n >= *maxIns {
-				m.Set(0)
+				m.Set(rand.Int63n(10))
 			} else {
 				m.Set(*refValue / int64(n))
 			}
