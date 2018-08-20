@@ -14,12 +14,6 @@ const (
 	minInterval     = 10 * time.Second
 )
 
-// Logger print reporting error
-type Logger interface {
-	Print(v ...interface{})
-	Printf(format string, v ...interface{})
-}
-
 // MetricReporter struct
 type MetricReporter struct {
 	project    string
@@ -51,7 +45,7 @@ func NewMetricReporter(ctx context.Context, project, zone, metric, instance stri
 		instance:   instance,
 		monitoring: s,
 		value:      v,
-		logger:     l,
+		logger:     wrapLogger(l),
 		interval:   defaultInterval,
 	}
 
@@ -127,7 +121,7 @@ func (m *MetricReporter) send() error {
 	now := time.Now().UTC().Format(time.RFC3339Nano)
 	v := <-m.value
 	m.value <- v
-	println("send", v)
+	m.logger.Debug("send:", v)
 	timeseries := monitoring.TimeSeries{
 		Metric: &monitoring.Metric{
 			Type: m.metric,
