@@ -123,6 +123,9 @@ func (m *MetricReporter) send() error {
 	m.value <- v
 	m.logger.Debug("send:", v)
 	timeseries := monitoring.TimeSeries{
+		Metric: &monitoring.Metric{
+			Type: m.metric,
+		},
 		Resource: &monitoring.MonitoredResource{
 			Labels: map[string]string{
 				"instance_id": m.instance,
