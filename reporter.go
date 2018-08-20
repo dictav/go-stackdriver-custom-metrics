@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
+	"sync"
 	"time"
 
 	"google.golang.org/api/monitoring/v3"
@@ -25,6 +26,7 @@ type MetricReporter struct {
 	timer      *time.Ticker
 	logger     Logger
 	interval   time.Duration
+	mutex      sync.Mutex
 }
 
 // NewMetricReporter creates a new MetricReporter
@@ -64,6 +66,7 @@ func (m *MetricReporter) Add(n int64) {
 
 	v := <-m.value
 	m.value <- v + n
+	m.logger.Debug("add:", v+n)
 }
 
 // Done reduce metric value
@@ -74,6 +77,7 @@ func (m *MetricReporter) Done(n int64) {
 
 	v := <-m.value
 	m.value <- v - n
+	m.logger.Debug("done:", v-n)
 }
 
 // Set metric value
@@ -124,6 +128,16 @@ func (m *MetricReporter) Stop() {
 	}
 	m.timer.Stop()
 	m.timer = nil
+}
+
+// SetLogger set logger
+func (m *MetricReporter) SetLogger(l Logger) {
+	if l == nil {
+		return
+	}
+	m.mutex.Lock()
+	m.logger = l
+	m.mutex.Unlock()
 }
 
 // send a value for the custom metric created
