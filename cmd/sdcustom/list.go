@@ -19,7 +19,7 @@ type listCmd struct {
 func (*listCmd) Name() string     { return "list" }
 func (*listCmd) Synopsis() string { return "list a custom metric" }
 func (*listCmd) Usage() string {
-	return `list:
+	return `list -project=<PROJECT> [-group=<GROUP>]
   Print custom metric descriptor tempalte.
 `
 }
@@ -30,7 +30,8 @@ func (cmd *listCmd) SetFlags(f *flag.FlagSet) {
 }
 
 func (cmd *listCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
-	if len(cmd.project) == 0 || len(cmd.group) == 0 {
+	if len(cmd.project) == 0 {
+		println(cmd.Usage())
 		return subcommands.ExitUsageError
 	}
 

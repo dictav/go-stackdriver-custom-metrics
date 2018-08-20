@@ -26,7 +26,7 @@ type watchCmd struct {
 func (*watchCmd) Name() string     { return "watch" }
 func (*watchCmd) Synopsis() string { return "watch a custom metric" }
 func (*watchCmd) Usage() string {
-	return `watch:
+	return `watch -project=<PROJECT> -metric=<METRIC> [-debug]:
   Watch custom metric 
 `
 }

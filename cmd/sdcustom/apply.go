@@ -39,12 +39,13 @@ func (cmd *applyCmd) SetFlags(f *flag.FlagSet) {
 
 func (cmd *applyCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	if len(cmd.project) == 0 || len(cmd.zone) == 0 || len(cmd.metric) == 0 || len(cmd.file) == 0 {
+		println(cmd.Usage())
 		return subcommands.ExitUsageError
 	}
 
 	fd, err := os.Open(cmd.file)
 	if err != nil {
-		println("here1", err.Error())
+		println(err.Error())
 		return subcommands.ExitFailure
 	}
 	defer func() {
@@ -55,14 +56,14 @@ func (cmd *applyCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{
 
 	md := monitoring.MetricDescriptor{}
 	if err := json.NewDecoder(fd).Decode(&md); err != nil {
-		println("here2", err.Error())
+		println(err.Error())
 		return subcommands.ExitFailure
 	}
 	md.Type = path.Join(customMetric, cmd.metric)
 
 	err = sdcustom.Create(cmd.project, &md)
 	if err != nil {
-		println("here2", err.Error())
+		println(err.Error())
 		return subcommands.ExitFailure
 	}
 

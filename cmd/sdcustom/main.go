@@ -28,8 +28,5 @@ func main() {
 	flag.Parse()
 	ctx := context.Background()
 	ret := subcommands.Execute(ctx)
-	if ret == subcommands.ExitUsageError {
-		println(subcommands.CommandsCommand().Usage())
-	}
 	os.Exit(int(ret))
 }
