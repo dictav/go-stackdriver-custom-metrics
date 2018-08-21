@@ -17,12 +17,14 @@ const (
 
 // MetricReporter struct
 type MetricReporter struct {
+	ctx        context.Context
 	project    string
 	zone       string
 	metric     string
 	instance   string
 	monitoring *monitoring.Service
 	value      chan int64
+	values     []int64
 	timer      *time.Ticker
 	logger     Logger
 	interval   time.Duration
@@ -102,33 +104,54 @@ func (m *MetricReporter) SetInterval(t time.Duration) {
 
 // Start reporting
 func (m *MetricReporter) Start() {
-	if m == nil {
+	if m == nil || m.timer != nil {
 		return
 	}
-	if m.timer == nil {
-		t := m.interval
-		if t < m.interval {
-			t = minInterval
-		}
 
-		m.timer = time.NewTicker(t)
-		go func() {
-			for range m.timer.C {
+	t := m.interval
+	if t < m.interval {
+		t = minInterval
+	}
+
+	m.timer = time.NewTicker(t)
+	go func() {
+		i := time.NewTicker(1 * time.Second)
+		defer i.Stop()
+		for {
+			if m.timer == nil {
+				return
+			}
+
+			select {
+			case <-m.ctx.Done():
+				m.Stop() // it is necessary to avoid memory leak
+				return
+			case <-m.timer.C:
 				if err := m.send(); err != nil {
 					m.logger.Print("Could not write time series value:", err)
 				}
+			case _ = <-i.C:
+				v := <-m.value
+				m.values = append(m.values, v)
+				m.value <- v
 			}
-		}()
-	}
+		}
+	}()
 }
 
 // Stop reporting
 func (m *MetricReporter) Stop() {
-	if m == nil || m.timer == nil {
+	if m == nil {
+		return
+	}
+
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+	if m.timer == nil {
 		return
 	}
 	m.timer.Stop()
-	m.timer = nil
+	m.timer = nil // It is necessary to detect the end of ticker
 }
 
 // SetLogger set logger
@@ -144,8 +167,15 @@ func (m *MetricReporter) SetLogger(l Logger) {
 // send a value for the custom metric created
 func (m *MetricReporter) send() error {
 	now := time.Now().UTC().Format(time.RFC3339Nano)
-	v := <-m.value
-	m.value <- v
+	v := int64(0)
+	if len(m.values) > 0 {
+		// mutex.Lock is unnecessary because m.values is processed only in the same goroutine
+		for _, n := range m.values {
+			v += n
+		}
+		v /= int64(len(m.values))
+		m.values = m.values[:0]
+	}
 	m.logger.Debug("send:", v)
 	timeseries := monitoring.TimeSeries{
 		Metric: &monitoring.Metric{
