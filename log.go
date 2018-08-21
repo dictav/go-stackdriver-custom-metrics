@@ -26,7 +26,7 @@ type loggerWrapper struct {
 }
 
 // WrapLogger use Printer as Logger
-func wrapLogger(v Printer) Logger {
+func WrapLogger(v Printer) Logger {
 	return &loggerWrapper{
 		pF:  v.Print,
 		pfF: v.Printf,

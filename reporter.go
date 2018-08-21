@@ -41,13 +41,14 @@ func NewMetricReporter(ctx context.Context, project, zone, metric, instance stri
 	v := make(chan int64, 1)
 	v <- 0
 	m := &MetricReporter{
+		ctx:        ctx,
 		project:    project,
 		zone:       zone,
 		metric:     customMetricPrefix + metric,
 		instance:   instance,
 		monitoring: s,
 		value:      v,
-		logger:     wrapLogger(l),
+		logger:     WrapLogger(l),
 		interval:   defaultInterval,
 	}
 
